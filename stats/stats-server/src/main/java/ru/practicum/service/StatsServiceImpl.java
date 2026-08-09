@@ -37,10 +37,16 @@ public class StatsServiceImpl implements StatsService {
             throw new ValidationException("Start date cannot be after end date");
         }
 
+        boolean hasUris = uris != null && !uris.isEmpty();
+
         if (Boolean.TRUE.equals(unique)) {
-            return statsRepository.getStatsWithUniqueIp(start, end, uris);
+            return hasUris
+                    ? statsRepository.getStatsWithUniqueIpAndUris(start, end, uris)
+                    : statsRepository.getStatsWithUniqueIpWithoutUris(start, end);
         } else {
-            return statsRepository.getStatsAll(start, end, uris);
+            return hasUris
+                    ? statsRepository.getStatsAllAndUris(start, end, uris)
+                    : statsRepository.getStatsAllWithoutUris(start, end);
         }
     }
 }
