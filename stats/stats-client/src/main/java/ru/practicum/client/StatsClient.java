@@ -1,3 +1,5 @@
+package ru.practicum.client;
+
 import dto.EndpointHit;
 import dto.ViewStats;
 import lombok.RequiredArgsConstructor;
