@@ -21,28 +21,28 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
 
-#  stats-server:
-#    build: ./stats/stats-server
-#    container_name: stats-server
-#    ports:
-#      - "9090:9090"
-#    depends_on:
-#      - stats-db
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
-#
-#  ewm-service:
-#    build: ./ewm-main-service
-#    container_name: ewm-service
-#    ports:
-#      - "8080:8080"
-#    depends_on:
-#      - ewm-db
-#      - stats-server
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
-#      SPRING_DATASOURCE_USERNAME: root
-#      SPRING_DATASOURCE_PASSWORD: root
-#      STATS_SERVER_URL: http://stats-server:9090
+  stats-server:
+    build: ./stats/stats-server
+    container_name: stats-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - stats-db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://stats-db:5432/stats
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  ewm-service:
+    build: ./ewm-main-service
+    container_name: ewm-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-db
+      - stats-server
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      STATS_SERVER_URL: http://stats-server:9090
