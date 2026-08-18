@@ -12,7 +12,7 @@ import ru.practicum.request.ParticipationRequestRepository;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.model.RequestStatus;
-import ru.practicum.user.User;
+import ru.practicum.user.model.User;
 import ru.practicum.user.UserRepository;
 
 import java.time.LocalDateTime;

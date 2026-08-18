@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageRequest;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.category.Category;
+import ru.practicum.category.model.Category;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.event.EventRepository;
@@ -23,7 +23,7 @@ import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.model.RequestStatus;
-import ru.practicum.user.User;
+import ru.practicum.user.model.User;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.dto.UserShortDto;
 
