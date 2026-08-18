@@ -33,5 +33,5 @@ public class ParticipationRequest {
     private RequestStatus status;
 
     @Column(name = "created")
-    private LocalDateTime createdDate;
+    private LocalDateTime created;
 }
