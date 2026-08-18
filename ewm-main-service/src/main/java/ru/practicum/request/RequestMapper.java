@@ -15,7 +15,7 @@ public class RequestMapper {
         ParticipationRequestDto dto = new ParticipationRequestDto();
 
         dto.setId(request.getId());
-        dto.setCreated(request.getCreated());
+        dto.setCreatedDate(request.getCreatedDate());
 
         // Получаем ID события, если само событие существует
         if (request.getEvent() != null) {

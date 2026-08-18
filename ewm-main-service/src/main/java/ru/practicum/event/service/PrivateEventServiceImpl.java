@@ -242,7 +242,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private ParticipationRequestDto toParticipationRequestDto(ParticipationRequest request) {
         return ParticipationRequestDto.builder()
                 .id(request.getId())
-                .created(request.getCreatedDate())
+                .createdDate(request.getCreatedDate())
                 .event(request.getEvent().getId())
                 .requester(request.getRequester().getId())
                 .status(request.getStatus())
