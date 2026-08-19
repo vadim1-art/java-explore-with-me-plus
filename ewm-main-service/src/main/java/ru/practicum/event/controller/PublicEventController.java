@@ -1,6 +1,5 @@
 package ru.practicum.event.controller;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -13,23 +12,20 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.EndpointHitDto;
 import ru.practicum.client.StatsClient;
 import ru.practicum.event.EventMapper;
-import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.Event;
-import ru.practicum.event.model.EventState;
-import ru.practicum.exception.NotFoundException;
+import ru.practicum.event.service.PublicEventService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
 public class PublicEventController {
 
-    private final EventRepository eventRepository;
+    private final PublicEventService eventService;
     private final StatsClient statsClient;
 
     @GetMapping
@@ -64,12 +60,7 @@ public class PublicEventController {
         LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now();
         LocalDateTime end = rangeEnd != null ? rangeEnd : LocalDateTime.now().plusYears(100);
 
-        List<Event> events = eventRepository.findPublishedEventsWithFilters(
-                text, categories, paid, start, end, pageable);
-
-        return events.stream()
-                .map(EventMapper::toEventShortDto)
-                .collect(Collectors.toList());
+        return eventService.getPublishedEvents(text, categories, paid, start, end, pageable);
     }
 
     @GetMapping("/{id}")
@@ -85,12 +76,7 @@ public class PublicEventController {
                 .timestamp(LocalDateTime.now())
                 .build());
 
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Event with id=" + id + " was not found"));
-
-        if (event.getState() != EventState.PUBLISHED) {
-            throw new NotFoundException("Event with id=" + id + " was not found");
-        }
+        Event event = eventService.getPublishedEventById(id);
 
         return EventMapper.toEventFullDto(event);
     }
