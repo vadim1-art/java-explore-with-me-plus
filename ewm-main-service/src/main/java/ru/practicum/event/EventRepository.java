@@ -31,11 +31,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "WHERE e.state = 'PUBLISHED' " +
             "AND e.event_date >= :start AND e.event_date <= :end " +
             "AND (:text IS NULL OR " +
-            "     e.annotation ILIKE '%' || CAST(:text AS text) || '%' OR " +
-            "     e.description ILIKE '%' || CAST(:text AS text) || '%') " +
-            "AND (:categories IS NULL OR e.category_id IN :categories) " +
+            "     LOWER(e.annotation) LIKE LOWER(CONCAT('%', CAST(:text AS varchar), '%')) OR " +
+            "     LOWER(e.description) LIKE LOWER(CONCAT('%', CAST(:text AS varchar), '%'))) " +
+            "AND (:categories IS NULL OR e.category_id IN (:categories)) " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
-            "ORDER BY e.event_date ASC",
+            "ORDER BY e.event_date ASC " +
+            "LIMIT :size OFFSET :offset",
             nativeQuery = true)
     List<Long> findPublishedEventIdsWithFilters(
             @Param("text") String text,
@@ -43,5 +44,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("paid") Boolean paid,
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
-            Pageable pageable);
+            @Param("size") int size,
+            @Param("offset") int offset);
 }
