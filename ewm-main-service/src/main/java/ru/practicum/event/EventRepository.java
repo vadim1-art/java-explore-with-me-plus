@@ -27,15 +27,16 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     // 4. Для Compilations (Справочно): Получить список событий по списку их ID
     List<Event> findAllByIdIn(List<Long> ids);
 
-    @Query("SELECT e.id FROM Event e " +
+    @Query(value = "SELECT e.id FROM events e " +
             "WHERE e.state = 'PUBLISHED' " +
-            "AND e.eventDate >= :start AND e.eventDate <= :end " +
+            "AND e.event_date >= :start AND e.event_date <= :end " +
             "AND (:text IS NULL OR " +
-            "     e.annotation ILIKE '%' || :text || '%' OR " +
-            "     e.description ILIKE '%' || :text || '%') " +
-            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "     e.annotation ILIKE '%' || CAST(:text AS text) || '%' OR " +
+            "     e.description ILIKE '%' || CAST(:text AS text) || '%') " +
+            "AND (:categories IS NULL OR e.category_id IN :categories) " +
             "AND (:paid IS NULL OR e.paid = :paid) " +
-            "ORDER BY e.eventDate ASC")
+            "ORDER BY e.event_date ASC",
+            nativeQuery = true)
     List<Long> findPublishedEventIdsWithFilters(
             @Param("text") String text,
             @Param("categories") List<Long> categories,
