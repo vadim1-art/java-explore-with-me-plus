@@ -15,7 +15,8 @@ public interface PublicEventService {
             Boolean paid,
             LocalDateTime start,
             LocalDateTime end,
-            Pageable pageable);
+            Pageable pageable,
+            String sort);
 
     Event getPublishedEventById(Long eventId);
 }

@@ -4,18 +4,23 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.EndpointHitDto;
+import ru.practicum.ViewStatsDto;
 import ru.practicum.client.StatsClient;
 import ru.practicum.event.EventMapper;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.service.PublicEventService;
+import ru.practicum.request.ParticipationRequestRepository;
+import ru.practicum.request.model.RequestStatus;
+import ru.practicum.util.DateUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,10 +28,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/events")
 @RequiredArgsConstructor
+@Slf4j
 public class PublicEventController {
 
     private final PublicEventService eventService;
     private final StatsClient statsClient;
+    private final ParticipationRequestRepository requestRepository;
 
     @GetMapping
     public List<EventShortDto> getEvents(
@@ -41,13 +48,21 @@ public class PublicEventController {
             @RequestParam(defaultValue = "10") @Positive int size,
             HttpServletRequest request) {
 
+        log.info("Запрос на получение событий с фильтрами: text={}, categories={}, paid={}, sort={}",
+                text, categories, paid, sort);
+
         // Отправляем статистику
-        statsClient.saveHit(EndpointHitDto.builder()
-                .app("ewm-main-service")
-                .uri("/events")
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build());
+        try {
+            statsClient.saveHit(EndpointHitDto.builder()
+                    .app("ewm-main-service")
+                    .uri("/events")
+                    .ip(request.getRemoteAddr())
+                    .timestamp(LocalDateTime.now())
+                    .build());
+            log.info("Статистика для /events сохранена");
+        } catch (Exception e) {
+            log.error("Ошибка при сохранении статистики для /events: {}", e.getMessage());
+        }
 
         // Сортировка
         Sort sortBy = Sort.unsorted();
@@ -60,7 +75,7 @@ public class PublicEventController {
         LocalDateTime start = rangeStart != null ? rangeStart : LocalDateTime.now();
         LocalDateTime end = rangeEnd != null ? rangeEnd : LocalDateTime.now().plusYears(100);
 
-        return eventService.getPublishedEvents(text, categories, paid, start, end, pageable);
+        return eventService.getPublishedEvents(text, categories, paid, start, end, pageable, sort);
     }
 
     @GetMapping("/{id}")
@@ -69,15 +84,36 @@ public class PublicEventController {
             HttpServletRequest request) {
 
         // Отправляем статистику
-        statsClient.saveHit(EndpointHitDto.builder()
-                .app("ewm-main-service")
-                .uri("/events/" + id)
-                .ip(request.getRemoteAddr())
-                .timestamp(LocalDateTime.now())
-                .build());
+        log.info("Запрос на получение события с id={}", id);
+
+        try {
+            statsClient.saveHit(EndpointHitDto.builder()
+                    .app("ewm-main-service")
+                    .uri("/events/" + id)
+                    .ip(request.getRemoteAddr())
+                    .timestamp(LocalDateTime.now())
+                    .build());
+            log.info("Статистика для /events/{} сохранена", id);
+        } catch (Exception e) {
+            log.error("Ошибка при сохранении статистики для /events/{}: {}", id, e.getMessage());
+        }
 
         Event event = eventService.getPublishedEventById(id);
 
-        return EventMapper.toEventFullDto(event);
+        int confirmedRequests = (int) requestRepository.countByEventIdAndStatus(id, RequestStatus.CONFIRMED);
+        log.info("Количество подтвержденных заявок: {}", confirmedRequests);
+
+        Long views = 0L;
+        try {
+            String start = DateUtils.format(LocalDateTime.of(2000, 1, 1, 0, 0, 0));
+            String end = DateUtils.format(LocalDateTime.now());
+            List<ViewStatsDto> stats = statsClient.getStats(start, end, List.of("/events/" + id), true);
+            views = stats.isEmpty() ? 0L : stats.get(0).getHits();
+            log.info("Количество просмотров: {}", views);
+        } catch (Exception e) {
+            log.error("Ошибка при получении просмотров: {}", e.getMessage());
+        }
+
+        return EventMapper.toEventFullDtoWithStats(event, confirmedRequests, views);
     }
 }
