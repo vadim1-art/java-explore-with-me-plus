@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.event.model.Event;
+import ru.practicum.event.model.EventState;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,6 +28,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     // 4. Для Compilations (Справочно): Получить список событий по списку их ID
     List<Event> findAllByIdIn(List<Long> ids);
 
+    // 5. Для Public API: Поиск ID опубликованных событий с фильтрами
     @Query(value = "SELECT e.id FROM events e " +
             "WHERE e.state = 'PUBLISHED' " +
             "AND e.event_date >= :start AND e.event_date <= :end " +
@@ -46,4 +48,19 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("end") LocalDateTime end,
             @Param("size") int size,
             @Param("offset") int offset);
+
+    // 6. НОВЫЙ МЕТОД для Admin API: Поиск событий с фильтрами (для админа)
+    @Query("SELECT e FROM Event e " +
+            "WHERE (:users IS NULL OR e.initiator.id IN :users) " +
+            "AND (:states IS NULL OR e.state IN :states) " +
+            "AND (:categories IS NULL OR e.category.id IN :categories) " +
+            "AND (:rangeStart IS NULL OR e.eventDate >= :rangeStart) " +
+            "AND (:rangeEnd IS NULL OR e.eventDate <= :rangeEnd)")
+    Page<Event> findEventsByAdminFilters(
+            @Param("users") List<Long> users,
+            @Param("states") List<EventState> states,
+            @Param("categories") List<Long> categories,
+            @Param("rangeStart") LocalDateTime rangeStart,
+            @Param("rangeEnd") LocalDateTime rangeEnd,
+            Pageable pageable);
 }
