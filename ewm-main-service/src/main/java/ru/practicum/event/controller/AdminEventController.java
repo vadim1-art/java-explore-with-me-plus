@@ -1,11 +1,11 @@
-package ru.practicum.admin.controller;
+package ru.practicum.event.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.admin.dto.UpdateEventAdminRequest;
 import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.service.AdminEventService;
 
 import java.time.LocalDateTime;

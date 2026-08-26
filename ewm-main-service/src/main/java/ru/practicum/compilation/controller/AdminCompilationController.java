@@ -1,12 +1,12 @@
-package ru.practicum.admin.controller;
+package ru.practicum.compilation.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.admin.dto.NewCompilationDto;
-import ru.practicum.admin.dto.UpdateCompilationRequest;
 import ru.practicum.compilation.dto.CompilationDto;
+import ru.practicum.compilation.dto.NewCompilationDto;
+import ru.practicum.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.compilation.service.AdminCompilationService;
 
 @RestController
