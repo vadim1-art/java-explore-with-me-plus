@@ -6,12 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.model.Category;
 import ru.practicum.event.EventMapper;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.EventState;
 import ru.practicum.event.model.Location;
@@ -55,7 +55,7 @@ public class AdminEventServiceImpl implements AdminEventService {
                     .collect(Collectors.toList());
         }
 
-        // Выполняем запрос с фильтрами
+        // Выполняем запрос с фильтрами через @Query
         return eventRepository.findEventsByAdminFilters(
                         users, eventStates, categories, rangeStart, rangeEnd, pageable)
                 .stream()
@@ -69,7 +69,7 @@ public class AdminEventServiceImpl implements AdminEventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
-        // Обновление полей (код остается тем же)
+        // Обновление полей
         if (updateRequest.getAnnotation() != null) {
             event.setAnnotation(updateRequest.getAnnotation());
         }
