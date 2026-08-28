@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class AdminEventServiceImpl implements AdminEventService {
+public class pAdminEventServiceImpl implements AdminEventService {
 
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
