@@ -54,11 +54,10 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             "WHERE e.state = :state " +
             "AND e.eventDate BETWEEN :start AND :end " +
             "ORDER BY e.eventDate ASC")
-    List<Event> findPublishedByDateRange(
+    List<Event> findAllByStateAndEventDateBetween(
             @Param("state") EventState state,
             @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
-            Pageable pageable);
+            @Param("end") LocalDateTime end);
 
     // 6. НОВЫЙ МЕТОД для Admin API: Поиск событий с фильтрами (для админа)
     @Query("SELECT e FROM Event e " +
