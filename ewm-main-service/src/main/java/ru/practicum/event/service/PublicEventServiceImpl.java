@@ -46,11 +46,11 @@ public class PublicEventServiceImpl implements PublicEventService {
 
         // Вычисляем size и offset из pageable
         int size = pageable.getPageSize();
-        int offset = pageable.getPageNumber() * size;
+        int offset = (int) pageable.getOffset();  // ← вместо from / size
 
-        // 1. Получаем только ID событий
+        // 1. Получаем только ID событий с новыми параметрами
         List<Long> eventIds = eventRepository.findPublishedEventIdsWithFilters(
-                text, categories, paid, start, end, size, offset);
+                text, categories, paid, start, end, size, offset);  // ← изменил порядок
 
         if (eventIds.isEmpty()) {
             log.info("События по заданным фильтрам не найдены");
