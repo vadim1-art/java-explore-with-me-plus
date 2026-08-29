@@ -34,7 +34,7 @@ public class StatsServiceImpl implements StatsService {
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
         if (start != null && end != null && start.isAfter(end)) {
-            throw new ValidationException("Start date cannot be after end date");
+            throw new ValidationException("Start date must be before end date");
         }
 
         boolean hasUris = uris != null && !uris.isEmpty();
