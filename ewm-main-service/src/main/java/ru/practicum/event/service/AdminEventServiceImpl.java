@@ -47,13 +47,23 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         Pageable pageable = PageRequest.of(from / size, size);
 
-        // Преобразуем строковые статусы в Enum
         List<EventState> eventStates = null;
         if (states != null && !states.isEmpty()) {
             eventStates = states.stream()
                     .map(EventState::valueOf)
                     .collect(Collectors.toList());
         }
+
+        // Если все фильтры пустые — возвращаем все события
+        if ((users == null || users.isEmpty()) &&
+                (eventStates == null || eventStates.isEmpty()) &&
+                (categories == null || categories.isEmpty()) &&
+                rangeStart == null && rangeEnd == null) {
+            return eventRepository.findAll(pageable).stream()
+                    .map(this::toEventFullDto)
+                    .collect(Collectors.toList());
+        }
+
         return eventRepository.findEventsByAdminFilters(
                         users, eventStates, categories, rangeStart, rangeEnd, pageable)
                 .stream()
