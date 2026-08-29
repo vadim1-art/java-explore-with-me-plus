@@ -59,7 +59,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end);
 
-    // 6. НОВЫЙ МЕТОД для Admin API: Поиск событий с фильтрами (для админа)
+    // 6. для Admin API: Поиск событий с фильтрами (для админа)
     @Query("SELECT e FROM Event e " +
             "WHERE (:users IS NULL OR e.initiator.id IN :users) " +
             "AND (:states IS NULL OR e.state IN :states) " +
