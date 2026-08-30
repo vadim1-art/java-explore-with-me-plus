@@ -4,8 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.event.EventMapper;
+import ru.practicum.event.EventRepository;
+import ru.practicum.event.dto.EventShortDto;
+import ru.practicum.event.model.EventState;
 import ru.practicum.exception.ConflictException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.subscription.SubscriptionRepository;
@@ -30,6 +35,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
     private final UserRepository userRepository;
+    private final EventRepository eventRepository;
 
     @Override
     @Transactional
@@ -84,13 +90,11 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .findBySubscriberIdAndPublisherId(subscriberId, publisherId)
                 .orElseThrow(() -> new NotFoundException("Subscription not found"));
 
+        // Подписчик может менять только тип уведомлений/подписки
         if (updateDto.getType() != null) {
             subscription.setType(updateDto.getType());
         }
 
-        if (updateDto.getStatus() != null) {
-            subscription.setStatus(updateDto.getStatus());
-        }
 
         Subscription updated = subscriptionRepository.save(subscription);
         log.info("Subscription updated: subscriber={}, publisher={}", subscriberId, publisherId);
@@ -133,5 +137,22 @@ public class SubscriptionServiceImpl implements SubscriptionService {
                 .orElseThrow(() -> new NotFoundException("Subscription not found"));
 
         return SubscriptionMapper.toSubscriptionDto(subscription);
+    }
+
+    @Override
+    public List<EventShortDto> getSubscriptionEvents(Long userId, int from, int size) {
+        // 1. Проверяем, существует ли пользователь
+        if (!userRepository.existsById(userId)) {
+            throw new NotFoundException("User with id=" + userId + " not found");
+        }
+
+        // 2. Настраиваем пагинацию и сортировку (сначала ближайшие события)
+        Pageable pageable = PageRequest.of(from / size, size, Sort.by(Sort.Direction.DESC, "eventDate"));
+
+        // 3. Достаем события и мапим их в DTO
+        return eventRepository.findEventsBySubscription(userId, EventState.PUBLISHED, pageable)
+                .stream()
+                .map(EventMapper::toEventShortDto)
+                .collect(Collectors.toList());
     }
 }

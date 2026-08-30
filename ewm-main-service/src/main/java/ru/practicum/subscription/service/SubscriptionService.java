@@ -1,5 +1,6 @@
 package ru.practicum.subscription.service;
 
+import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.subscription.dto.NewSubscriptionDto;
 import ru.practicum.subscription.dto.SubscriptionDto;
 import ru.practicum.subscription.dto.UpdateSubscriptionDto;
@@ -25,4 +26,7 @@ public interface SubscriptionService {
 
     // Получить статус подписки
     SubscriptionDto getSubscription(Long subscriberId, Long publisherId);
+
+    // Получить ленту событий по подпискам
+    List<EventShortDto> getSubscriptionEvents(Long userId, int from, int size);
 }

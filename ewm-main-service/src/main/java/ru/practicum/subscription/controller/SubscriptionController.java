@@ -6,6 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.subscription.dto.NewSubscriptionDto;
 import ru.practicum.subscription.dto.SubscriptionDto;
 import ru.practicum.subscription.dto.UpdateSubscriptionDto;
@@ -71,5 +72,14 @@ public class SubscriptionController {
             @PathVariable Long userId,
             @PathVariable Long publisherId) {
         return subscriptionService.getSubscription(userId, publisherId);
+    }
+
+    // 7. Получить ленту событий от пользователей, на которых оформлена подписка
+    @GetMapping("/events")
+    public List<EventShortDto> getSubscriptionEvents(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+            @RequestParam(defaultValue = "10") @Positive int size) {
+        return subscriptionService.getSubscriptionEvents(userId, from, size);
     }
 }
