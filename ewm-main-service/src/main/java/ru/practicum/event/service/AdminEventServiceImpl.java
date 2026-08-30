@@ -1,9 +1,11 @@
 package ru.practicum.event.service;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.CategoryRepository;
@@ -22,6 +24,7 @@ import ru.practicum.request.ParticipationRequestRepository;
 import ru.practicum.request.model.RequestStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,18 +50,47 @@ public class AdminEventServiceImpl implements AdminEventService {
 
         Pageable pageable = PageRequest.of(from / size, size);
 
-        // Преобразуем строковые статусы в Enum
-        List<EventState> eventStates = null;
-        if (states != null && !states.isEmpty()) {
-            eventStates = states.stream()
-                    .map(EventState::valueOf)
-                    .collect(Collectors.toList());
-        }
+        // Строим запрос вручную через Criteria API
+        Specification<Event> spec = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
 
-        // Выполняем запрос с фильтрами
-        return eventRepository.findEventsByAdminFilters(
-                        users, eventStates, categories, rangeStart, rangeEnd, pageable)
-                .stream()
+            // Фильтр по пользователям
+            if (users != null && !users.isEmpty()) {
+                predicates.add(root.get("initiator").get("id").in(users));
+            }
+
+            // Фильтр по статусам
+            if (states != null && !states.isEmpty()) {
+                List<EventState> eventStates = states.stream()
+                        .map(EventState::valueOf)
+                        .collect(Collectors.toList());
+                predicates.add(root.get("state").in(eventStates));
+            }
+
+            // Фильтр по категориям
+            if (categories != null && !categories.isEmpty()) {
+                predicates.add(root.get("category").get("id").in(categories));
+            }
+
+            // Фильтр по дате начала
+            if (rangeStart != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("eventDate"), rangeStart));
+            }
+
+            // Фильтр по дате конца
+            if (rangeEnd != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("eventDate"), rangeEnd));
+            }
+
+            // Если нет фильтров — возвращаем все записи
+            if (predicates.isEmpty()) {
+                return cb.conjunction();
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        return eventRepository.findAll(spec, pageable).stream()
                 .map(this::toEventFullDto)
                 .collect(Collectors.toList());
     }
@@ -69,7 +101,6 @@ public class AdminEventServiceImpl implements AdminEventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Event with id=" + eventId + " was not found"));
 
-        // Обновление полей (код остается тем же)
         if (updateRequest.getAnnotation() != null) {
             event.setAnnotation(updateRequest.getAnnotation());
         }
@@ -114,7 +145,6 @@ public class AdminEventServiceImpl implements AdminEventService {
             event.setTitle(updateRequest.getTitle());
         }
 
-        // Обработка изменения статуса (stateAction)
         if (updateRequest.getStateAction() != null) {
             String action = updateRequest.getStateAction();
 

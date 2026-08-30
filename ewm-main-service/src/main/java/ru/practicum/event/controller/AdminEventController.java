@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
-import ru.practicum.event.service.AdminEventService;
+import ru.practicum.event.service.AdminEventService;   // ← правильный импорт!
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminEventController {
 
-    private final AdminEventService eventService;
+    private final AdminEventService eventService;   // ← использует правильный сервис
 
     @GetMapping
     public List<EventFullDto> getEvents(

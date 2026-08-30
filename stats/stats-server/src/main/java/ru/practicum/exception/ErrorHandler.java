@@ -34,4 +34,11 @@ public class ErrorHandler {
         log.error("Несовпадение типов: {}", e.getMessage());
         return Map.of("error", "Неверный формат параметра");
     }
+
+    @ExceptionHandler(ValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleValidation(ValidationException e) {
+        log.error("Validation error: {}", e.getMessage());
+        return Map.of("error", e.getMessage());
+    }
 }

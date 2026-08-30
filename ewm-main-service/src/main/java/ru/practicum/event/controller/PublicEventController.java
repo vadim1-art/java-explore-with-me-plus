@@ -18,6 +18,7 @@ import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.service.PublicEventService;
+import ru.practicum.exception.ValidationException;
 import ru.practicum.request.ParticipationRequestRepository;
 import ru.practicum.request.model.RequestStatus;
 import ru.practicum.util.DateUtils;
@@ -47,6 +48,11 @@ public class PublicEventController {
             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
             @RequestParam(defaultValue = "10") @Positive int size,
             HttpServletRequest request) {
+
+        // ⭐ ВАЛИДАЦИЯ ДАТ ⭐
+        if (rangeStart != null && rangeEnd != null && rangeEnd.isBefore(rangeStart)) {
+            throw new ValidationException("rangeEnd must be after rangeStart");
+        }
 
         log.info("Запрос на получение событий с фильтрами: text={}, categories={}, paid={}, sort={}",
                 text, categories, paid, sort);

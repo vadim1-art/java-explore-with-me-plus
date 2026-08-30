@@ -44,41 +44,62 @@ public class PublicEventServiceImpl implements PublicEventService {
             Pageable pageable,
             String sort) {
 
-        // Вычисляем size и offset из pageable
-        int size = pageable.getPageSize();
-        int offset = pageable.getPageNumber() * size;
+        // 1. Берем ВСЕ опубликованные события за период
+        List<Event> allEvents = eventRepository.findAllByStateAndEventDateBetween(
+                EventState.PUBLISHED, start, end);
 
-        // 1. Получаем только ID событий
-        List<Long> eventIds = eventRepository.findPublishedEventIdsWithFilters(
-                text, categories, paid, start, end, size, offset);
-
-        if (eventIds.isEmpty()) {
-            log.info("События по заданным фильтрам не найдены");
+        if (allEvents.isEmpty()) {
             return Collections.emptyList();
         }
 
-        // 2. Загружаем полные события по ID
-        List<Event> events = eventRepository.findAllByIdIn(eventIds);
+        // 2. Фильтруем в Java
+        List<Event> filtered = allEvents.stream()
+                .filter(e -> text == null || text.isEmpty() ||
+                        e.getAnnotation().toLowerCase().contains(text.toLowerCase()) ||
+                        e.getDescription().toLowerCase().contains(text.toLowerCase()))
+                .filter(e -> categories == null || categories.isEmpty() ||
+                        categories.contains(e.getCategory().getId()))
+                .filter(e -> paid == null || e.getPaid().equals(paid))
+                .collect(Collectors.toList());
 
-        // 3. Получаем просмотры для этих событий
-        Map<Long, Long> viewsMap = getViewsForEvents(eventIds);
+        if (filtered.isEmpty()) {
+            return Collections.emptyList();
+        }
 
-        // 4. Маппим в DTO
-        List<EventShortDto> dtos = events.stream()
-                .map(event -> {
-                    int confirmedRequests = (int) requestRepository.countByEventIdAndStatus(
-                            event.getId(), RequestStatus.CONFIRMED);
-                    Long views = viewsMap.getOrDefault(event.getId(), 0L);
-                    return EventMapper.toEventShortDtoWithStats(event, confirmedRequests, views);
+        // 3. Применяем пагинацию в Java
+        int startIndex = (int) pageable.getOffset();
+        int endIndex = Math.min(startIndex + pageable.getPageSize(), filtered.size());
+
+        if (startIndex >= filtered.size()) {
+            return Collections.emptyList();
+        }
+
+        List<Event> pagedEvents = filtered.subList(startIndex, endIndex);
+
+        // 4. Получаем ID для просмотров
+        List<Long> ids = pagedEvents.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
+
+        // 5. Получаем просмотры
+        Map<Long, Long> views = getViewsForEvents(ids);
+
+        // 6. Маппим в DTO
+        List<EventShortDto> result = pagedEvents.stream()
+                .map(e -> {
+                    int confirmed = (int) requestRepository.countByEventIdAndStatus(
+                            e.getId(), RequestStatus.CONFIRMED);
+                    return EventMapper.toEventShortDtoWithStats(
+                            e, confirmed, views.getOrDefault(e.getId(), 0L));
                 })
                 .collect(Collectors.toList());
 
+        // 7. Сортировка по просмотрам если нужно
         if ("VIEWS".equals(sort)) {
-            log.info("Сортировка событий по просмотрам");
-            dtos.sort(Comparator.comparing(EventShortDto::getViews));
+            result.sort(Comparator.comparing(EventShortDto::getViews));
         }
 
-        return dtos;
+        return result;
     }
 
     @Override

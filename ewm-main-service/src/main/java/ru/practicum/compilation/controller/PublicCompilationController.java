@@ -29,6 +29,13 @@ public class PublicCompilationController {
 
         Pageable pageable = PageRequest.of(from / size, size);
 
+        if (pinned == null) {
+            return compilationRepository.findAll(pageable)
+                    .stream()
+                    .map(CompilationMapper::toCompilationDto)
+                    .toList();
+        }
+
         return compilationRepository.findAllByPinned(pinned, pageable)
                 .stream()
                 .map(CompilationMapper::toCompilationDto)
