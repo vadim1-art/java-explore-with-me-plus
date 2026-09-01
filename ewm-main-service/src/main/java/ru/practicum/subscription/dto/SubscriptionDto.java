@@ -20,7 +20,6 @@ public class SubscriptionDto {
     private UserShortDto subscriber;
     private UserShortDto publisher;
     private SubscriptionStatus status;
-    private SubscriptionType type;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createdAt;

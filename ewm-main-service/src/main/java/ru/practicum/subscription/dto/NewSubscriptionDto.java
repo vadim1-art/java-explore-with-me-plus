@@ -14,7 +14,4 @@ public class NewSubscriptionDto {
 
     @NotNull(message = "Publisher ID cannot be null")
     private Long publisherId;
-
-    @NotNull(message = "Subscription type cannot be null")
-    private SubscriptionType type;
 }

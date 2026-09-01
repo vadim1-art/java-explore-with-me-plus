@@ -15,9 +15,6 @@ public interface SubscriptionService {
     // Отписаться
     void unsubscribe(Long subscriberId, Long publisherId);
 
-    // Обновить подписку
-    SubscriptionDto updateSubscription(Long subscriberId, Long publisherId, UpdateSubscriptionDto updateDto);
-
     // Получить все подписки пользователя
     List<SubscriptionDto> getSubscriptions(Long userId, int from, int size);
 

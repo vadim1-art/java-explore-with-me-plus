@@ -12,6 +12,5 @@ import ru.practicum.subscription.model.SubscriptionStatus;
 @AllArgsConstructor
 public class UpdateSubscriptionDto {
 
-    private SubscriptionType type;
     private SubscriptionStatus status;
 }
