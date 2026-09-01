@@ -35,10 +35,4 @@ public class Subscription {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private SubscriptionStatus status;
-
-    // Подписка на события опубликованные пользователем
-    // или на все его действия
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
-    private SubscriptionType type;
 }

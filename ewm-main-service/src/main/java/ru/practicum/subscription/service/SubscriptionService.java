@@ -3,7 +3,6 @@ package ru.practicum.subscription.service;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.subscription.dto.NewSubscriptionDto;
 import ru.practicum.subscription.dto.SubscriptionDto;
-import ru.practicum.subscription.dto.UpdateSubscriptionDto;
 
 import java.util.List;
 

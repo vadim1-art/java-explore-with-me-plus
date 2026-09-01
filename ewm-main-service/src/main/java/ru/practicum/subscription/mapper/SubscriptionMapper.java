@@ -23,7 +23,6 @@ public class SubscriptionMapper {
                 .subscriber(UserMapper.toUserShortDto(subscription.getSubscriber()))
                 .publisher(UserMapper.toUserShortDto(subscription.getPublisher()))
                 .status(subscription.getStatus())
-                .type(subscription.getType())
                 .createdAt(subscription.getCreatedAt())
                 .build();
     }
@@ -36,7 +35,6 @@ public class SubscriptionMapper {
         return Subscription.builder()
                 .subscriber(subscriber)
                 .publisher(publisher)
-                .type(dto.getType())
                 .status(SubscriptionStatus.ACTIVE)
                 .createdAt(LocalDateTime.now())
                 .build();

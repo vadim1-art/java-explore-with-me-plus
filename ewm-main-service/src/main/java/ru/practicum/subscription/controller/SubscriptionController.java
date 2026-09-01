@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.subscription.dto.NewSubscriptionDto;
 import ru.practicum.subscription.dto.SubscriptionDto;
-import ru.practicum.subscription.dto.UpdateSubscriptionDto;
 import ru.practicum.subscription.service.SubscriptionService;
 
 import java.util.List;

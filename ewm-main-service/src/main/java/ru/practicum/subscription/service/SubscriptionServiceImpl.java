@@ -16,14 +16,11 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.subscription.SubscriptionRepository;
 import ru.practicum.subscription.dto.NewSubscriptionDto;
 import ru.practicum.subscription.dto.SubscriptionDto;
-import ru.practicum.subscription.dto.UpdateSubscriptionDto;
 import ru.practicum.subscription.mapper.SubscriptionMapper;
 import ru.practicum.subscription.model.Subscription;
-import ru.practicum.subscription.model.SubscriptionStatus;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,25 +72,6 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
         subscriptionRepository.delete(subscription);
         log.info("User {} unsubscribed from user {}", subscriberId, publisherId);
-    }
-
-    @Override
-    @Transactional
-    public SubscriptionDto updateSubscription(Long subscriberId, Long publisherId, UpdateSubscriptionDto updateDto) {
-        Subscription subscription = subscriptionRepository
-                .findBySubscriberIdAndPublisherId(subscriberId, publisherId)
-                .orElseThrow(() -> new NotFoundException("Subscription not found"));
-
-        // Подписчик может менять только тип уведомлений/подписки
-        if (updateDto.getType() != null) {
-            subscription.setType(updateDto.getType());
-        }
-
-
-        Subscription updated = subscriptionRepository.save(subscription);
-        log.info("Subscription updated: subscriber={}, publisher={}", subscriberId, publisherId);
-
-        return SubscriptionMapper.toSubscriptionDto(updated);
     }
 
     @Override
