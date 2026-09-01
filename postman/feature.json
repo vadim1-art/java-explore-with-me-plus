@@ -19,7 +19,6 @@
               "    var jsonData = pm.response.json();",
               "    pm.expect(jsonData).to.have.property('id');",
               "    pm.expect(jsonData.status).to.eql('ACTIVE');",
-              "    pm.expect(jsonData.type).to.eql('ALL_EVENTS');",
               "});"
             ],
             "type": "text/javascript"
@@ -36,7 +35,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"publisherId\": 2,\n    \"type\": \"ALL_EVENTS\"\n}"
+          "raw": "{\n    \"publisherId\": 2\n}"
         },
         "url": {
           "raw": "http://localhost:8080/users/1/subscriptions",
@@ -164,55 +163,7 @@
       "response": []
     },
     {
-      "name": "5. Обновить подписку",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status code is 200\", function () {",
-              "    pm.response.to.have.status(200);",
-              "});",
-              "pm.test(\"Type is updated\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.type).to.eql('FAVORITE_EVENTS');",
-              "});"
-            ],
-            "type": "text/javascript"
-          }
-        }
-      ],
-      "request": {
-        "method": "PATCH",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"type\": \"FAVORITE_EVENTS\"\n}"
-        },
-        "url": {
-          "raw": "http://localhost:8080/users/1/subscriptions/2",
-          "protocol": "http",
-          "host": [
-            "localhost"
-          ],
-          "port": "8080",
-          "path": [
-            "users",
-            "1",
-            "subscriptions",
-            "2"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "6. Получить ленту событий по подпискам",
+      "name": "5. Получить ленту событий по подпискам",
       "event": [
         {
           "listen": "test",
@@ -261,7 +212,7 @@
       "response": []
     },
     {
-      "name": "7. Отписаться",
+      "name": "6. Отписаться",
       "event": [
         {
           "listen": "test",
