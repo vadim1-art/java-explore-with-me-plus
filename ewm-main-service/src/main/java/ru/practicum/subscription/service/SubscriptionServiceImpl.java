@@ -58,13 +58,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             throw new ConflictException("Already subscribed to user with id=" + newSubscriptionDto.getPublisherId());
         }
 
-        Subscription subscription = Subscription.builder()
-                .subscriber(subscriber)
-                .publisher(publisher)
-                .type(newSubscriptionDto.getType())
-                .status(SubscriptionStatus.ACTIVE)
-                .createdAt(LocalDateTime.now())
-                .build();
+        Subscription subscription = SubscriptionMapper.toSubscription(subscriber, publisher, newSubscriptionDto);
 
         subscription = subscriptionRepository.save(subscription);
         log.info("User {} subscribed to user {}", subscriberId, newSubscriptionDto.getPublisherId());

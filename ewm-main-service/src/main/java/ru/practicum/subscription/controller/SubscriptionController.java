@@ -39,15 +39,6 @@ public class SubscriptionController {
         subscriptionService.unsubscribe(userId, publisherId);
     }
 
-    // 3. Обновить подписку
-    @PatchMapping("/{publisherId}")
-    public SubscriptionDto updateSubscription(
-            @PathVariable Long userId,
-            @PathVariable Long publisherId,
-            @Valid @RequestBody UpdateSubscriptionDto updateDto) {
-        return subscriptionService.updateSubscription(userId, publisherId, updateDto);
-    }
-
     // 4. Получить все подписки пользователя
     @GetMapping
     public List<SubscriptionDto> getSubscriptions(

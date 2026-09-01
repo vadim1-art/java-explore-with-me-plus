@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.subscription.model.SubscriptionStatus;
-import ru.practicum.subscription.model.SubscriptionType;
 import ru.practicum.user.dto.UserShortDto;
 
 import java.time.LocalDateTime;
