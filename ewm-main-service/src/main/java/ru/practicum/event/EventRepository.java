@@ -73,4 +73,16 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
             @Param("rangeStart") LocalDateTime rangeStart,
             @Param("rangeEnd") LocalDateTime rangeEnd,
             Pageable pageable);
+
+    // 7. Для Private API: Получить ленту опубликованных событий по подпискам
+    @Query("SELECT e FROM Event e " +
+            "WHERE e.initiator.id IN (" +
+            "    SELECT s.publisher.id FROM Subscription s " +
+            "    WHERE s.subscriber.id = :userId AND s.status = 'ACTIVE'" +
+            ") " +
+            "AND e.state = :state")
+    Page<Event> findEventsBySubscription(
+            @Param("userId") Long userId,
+            @Param("state") EventState state,
+            Pageable pageable);
 }
